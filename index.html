@@ -356,7 +356,7 @@
                     </div>
 
                     <div class="card">
-                        <label class="input-label">How many campaigns do you typically run per year in total, across all your platforms/accounts?</label>
+                        <label class="input-label">On average, how many campaigns do you run on each account?</label>
                         <div class="persona-info">
                             <span class="persona-icon">👤</span>
                             <span class="persona-text purple-text">Best to ask: Campaign Manager or Media Buyer</span>
@@ -607,7 +607,7 @@
             const enrichments = parseFloat(document.getElementById('enrichments').value) || 0;
 
             const dataPipelines = platforms * accounts;
-            const dailyRowsPerPipeline = (campaigns * adgroups * creatives * duration) / 365;
+            const dailyRowsPerPipeline = (campaigns * platforms * accounts * adgroups * creatives * duration) / 365 / dataPipelines;
             const yearlyRows = dataPipelines * dailyRowsPerPipeline * 365;
             const defaultDashboards = platforms;
             const totalDashboards = defaultDashboards + additionalDashboards + executiveDashboards;
