@@ -168,6 +168,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
+            margin-bottom: 4px;
         }
         .yearly-label { color: #6b7280; }
         .yearly-value { font-weight: 600; color: #8b5cf6; }
@@ -416,6 +417,10 @@
                         <p class="result-desc">Average daily data rows generated per pipeline</p>
                         <div class="yearly-box">
                             <div class="yearly-row">
+                                <span class="yearly-label">Total daily rows:</span>
+                                <span class="yearly-value" id="totalDailyRows">0</span>
+                            </div>
+                            <div class="yearly-row">
                                 <span class="yearly-label">Total yearly rows:</span>
                                 <span class="yearly-value" id="yearlyRows">0</span>
                             </div>
@@ -521,6 +526,10 @@
                         <p class="result-desc">Average daily data rows generated per pipeline</p>
                         <div class="yearly-box">
                             <div class="yearly-row">
+                                <span class="yearly-label">Total daily rows:</span>
+                                <span class="yearly-value" id="totalDailyRows2">0</span>
+                            </div>
+                            <div class="yearly-row">
                                 <span class="yearly-label">Total yearly rows:</span>
                                 <span class="yearly-value" id="yearlyRows2">0</span>
                             </div>
@@ -585,7 +594,15 @@
     </div>
 
     <script>
+        function safeNum(value) {
+            const num = parseFloat(value);
+            return isNaN(num) ? 0 : num;
+        }
+
         function formatNumber(num) {
+            if (isNaN(num) || num === null || num === undefined || num === 0) {
+                return '0';
+            }
             if (num >= 1000000) {
                 return (num / 1000000).toFixed(1) + 'M';
             } else if (num >= 1000) {
@@ -595,39 +612,50 @@
         }
 
         function calculateResults() {
-            const platforms = parseFloat(document.getElementById('platforms').value) || 0;
-            const accounts = parseFloat(document.getElementById('accounts').value) || 0;
-            const campaigns = parseFloat(document.getElementById('campaigns').value) || 0;
-            const adgroups = parseFloat(document.getElementById('adgroups').value) || 0;
-            const creatives = parseFloat(document.getElementById('creatives').value) || 0;
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            const additionalDashboards = parseFloat(document.getElementById('additionalDashboards').value) || 0;
-            const executiveDashboards = parseFloat(document.getElementById('executiveDashboards').value) || 0;
-            const patterns = parseFloat(document.getElementById('patterns').value) || 0;
-            const enrichments = parseFloat(document.getElementById('enrichments').value) || 0;
+            const platforms = safeNum(document.getElementById('platforms').value);
+            const accounts = safeNum(document.getElementById('accounts').value);
+            const campaigns = safeNum(document.getElementById('campaigns').value);
+            const adgroups = safeNum(document.getElementById('adgroups').value);
+            const creatives = safeNum(document.getElementById('creatives').value);
+            const duration = safeNum(document.getElementById('duration').value);
+            const additionalDashboards = safeNum(document.getElementById('additionalDashboards').value);
+            const executiveDashboards = safeNum(document.getElementById('executiveDashboards').value);
+            const patterns = safeNum(document.getElementById('patterns').value);
+            const enrichments = safeNum(document.getElementById('enrichments').value);
 
             const dataPipelines = platforms * accounts;
-            const dailyRowsPerPipeline = (campaigns * platforms * accounts * adgroups * creatives * duration) / 365 / dataPipelines;
-            const yearlyRows = dataPipelines * dailyRowsPerPipeline * 365;
+            
+            let dailyRowsPerPipeline = 0;
+            let totalDailyRows = 0;
+            let yearlyRows = 0;
+            
+            if (dataPipelines > 0) {
+                dailyRowsPerPipeline = (campaigns * platforms * accounts * adgroups * creatives * duration) / 365 / dataPipelines;
+                totalDailyRows = dataPipelines * dailyRowsPerPipeline;
+                yearlyRows = totalDailyRows * 365;
+            }
+            
             const defaultDashboards = platforms;
             const totalDashboards = defaultDashboards + additionalDashboards + executiveDashboards;
 
             // Update Page 1 results
             document.getElementById('dataPipelines').textContent = formatNumber(dataPipelines);
             document.getElementById('dailyRows').textContent = formatNumber(dailyRowsPerPipeline);
+            document.getElementById('totalDailyRows').textContent = formatNumber(totalDailyRows);
             document.getElementById('yearlyRows').textContent = formatNumber(yearlyRows);
-            document.getElementById('defaultDashboards').textContent = defaultDashboards;
+            document.getElementById('defaultDashboards').textContent = formatNumber(defaultDashboards);
 
             // Update Page 2 results
             document.getElementById('dataPipelines2').textContent = formatNumber(dataPipelines);
             document.getElementById('dailyRows2').textContent = formatNumber(dailyRowsPerPipeline);
+            document.getElementById('totalDailyRows2').textContent = formatNumber(totalDailyRows);
             document.getElementById('yearlyRows2').textContent = formatNumber(yearlyRows);
-            document.getElementById('defaultDashboards2').textContent = defaultDashboards;
+            document.getElementById('defaultDashboards2').textContent = formatNumber(defaultDashboards);
             document.getElementById('totalDashboards').textContent = formatNumber(totalDashboards);
             document.getElementById('totalPatterns').textContent = formatNumber(patterns);
             document.getElementById('totalEnrichments').textContent = formatNumber(enrichments);
-            document.getElementById('additionalCount').textContent = additionalDashboards;
-            document.getElementById('executiveCount').textContent = executiveDashboards;
+            document.getElementById('additionalCount').textContent = formatNumber(additionalDashboards);
+            document.getElementById('executiveCount').textContent = formatNumber(executiveDashboards);
         }
 
         function goNext() {
